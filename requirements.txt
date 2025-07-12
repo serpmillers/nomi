@@ -1,0 +1,14 @@
+# CLI and UX
+rich==13.7.1              # For beautiful terminal outputs
+tqdm==4.66.4              # For progress bars (e.g., file uploads, thinking delays (maybe?))
+
+# Core features
+requests==2.31.0          # For making web/API calls
+python-dotenv==1.0.1      # For managing API keys
+pyyaml==6.0.1             # For config file
+
+# Gemini API
+google-generativeai==0.5.4  # Gemini SDK
+
+# Optional: For OpenAI fallback/future use (commented for now)
+# openai==1.30.1          

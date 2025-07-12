@@ -1,1 +1,4 @@
-#basically the settings file to configure nomi
+default_model: gemini-2.5-flash
+memory_file: memory.json
+persona: 'Nomi: Terminal bestie with a sage brain, wholesome heart, monk soul, and
+  just enough sass to keep it real.'
