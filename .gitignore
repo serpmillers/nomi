@@ -1,7 +1,11 @@
 .venv/
 utils/__pycache__/
 __pycache__/
-memory.json
+src/
+__pycache__/
+*.pyc
+
+chats/
 
 .env
 .env*

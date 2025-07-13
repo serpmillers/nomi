@@ -1,7 +1,6 @@
 #fancy intro type shi
 
 import yaml, os
-from contextlib import contextmanager
 from rich.prompt import Prompt, Confirm
 from rich.console import Console
 
@@ -19,17 +18,6 @@ class Startup:
 
     def is_first_run(self):
         return not os.path.exists(self.config_path)
-    
-    @contextmanager
-    def alternate_screen(self):
-        """Context manager to use alternate screen buffer."""
-        os.system("tput smcup")
-        os.system("clear")
-        try:
-            yield
-        finally:
-            os.system("clear")
-            os.system("tput rmcup")
 
     def get_saved_model(self):
         if not os.path.exists(self.config_path):
@@ -66,4 +54,4 @@ class Startup:
             console.print(f"Current model: [bold]{current_model}[/bold]")
             if Confirm.ask("Do you want to change it?"):
                 self.choose_model()
-        console.print("[bold cyan]Nomi is ready. Ask me anything![/bold cyan]")
+            

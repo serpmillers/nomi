@@ -4,32 +4,44 @@
 
 import os
 import yaml
+from contextlib import contextmanager
 from dotenv import load_dotenv
 from rich.console import Console
-from src.utils.cli import get_user_input
 from src.brain import Brain
 from src.startup import Startup
 
-load_dotenv()
-console = Console()
+class Nomi:
+    def __init__(self):
+        load_dotenv()
+        self.console = Console()
 
-CONFIG_PATH = "config.yaml"
+        self.CONFIG_PATH = "config.yaml"
+        with open(self.CONFIG_PATH, "r") as f:
+            self.config = yaml.safe_load(f)
+    
+    @contextmanager
+    def alternate_screen(self):
+        """
+        This is so that nomi can look like it's own instance
+        """
+        os.system("tput smcup")
+        os.system("clear")
+        try:
+            yield
+        finally:
+            os.system("clear")
+            os.system("tput rmcup")
 
-with open(CONFIG_PATH, "r") as f:
-    config = yaml.safe_load(f)
+    def main(self):
+        
+        Startup(config_path=self.CONFIG_PATH).run()
+        brain = Brain(self.config)
 
-Startup(config_path=CONFIG_PATH).run()
-brain = Brain(config)
+        # new instance opens right after selecting model :)
+        # with self.alternate_screen():
 
-def main():
-    while True:
-        user_input= get_user_input()
-        if user_input.lower() in ["exit", "quit", "bye"]:
-            console.print("[italic dim]Goodbye, human. See you later[/italic dim]")
-            break
-
-        response = brain.generate_response(user_input)
-        console.print(f"[bold green]Nomi:[/] {response}")
+            # this is where the loop hides
+        brain.chat()            
 
 if __name__ == "__main__":
-    main()
+    Nomi().main()
