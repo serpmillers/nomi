@@ -27,7 +27,7 @@ def choose_chat():
     console.print("[bold green]Your saved chats:[/]")
     for i, name in enumerate(chats, 1):
         console.print(f"[cyan]{i}.[/] {name}")
-    console.print(f"[cyan]{len(chats)+1}[/] Create new chat: ")
+    console.print(f"[cyan]{len(chats)+1}[/] Create new chat")
     
     idx = Prompt.ask(
         "Enter number: ",

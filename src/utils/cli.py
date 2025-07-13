@@ -2,4 +2,4 @@
 from rich.prompt import Prompt
 
 def get_user_input():
-    return Prompt.ask("[bold magenta]You: [/bold magenta]")
+    return Prompt.ask("[bold magenta]You: [/bold magenta]", show_default=False, show_choices=False)

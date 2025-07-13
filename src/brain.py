@@ -60,6 +60,18 @@ class Brain:
     def chat(self):
         self.console.print("[bold cyan]Nomi is ready. Ask me anything![/bold cyan]")
 
+        # importing chat history to the terminal
+        if self.history:
+            for message in self.history:
+                role = message["role"]
+                content = "\n".join(message["parts"]).strip()
+
+                if role == "user":
+                    self.console.print(f"[bold magenta]You:[/] {content}")
+                elif role == "model":
+                    self.console.print(f"[bold green]Nomi:[/] {content}")
+                self.console.print("")
+
         """
         Chat loop which I'm sending to nomi.py
         """
@@ -69,9 +81,11 @@ class Brain:
             if user_input.lower() in ["exit", "quit", "bye"]:
                 self.console.print("[italic dim]Goodbye, human. See you later :)[/italic dim]")
                 break
-
+            
+            self.console.print("")
             response = self.generate_response(user_input)
             self.console.print(f"[bold green]Nomi:[/] {response}")
+            self.console.print("")
 
         self.console.print("\n[dim]Press Enter to exit...[/dim]")
         input()
