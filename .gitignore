@@ -8,8 +8,7 @@ __pycache__/
 venv/
 
 #Chat logs and saved sessions
-chats/
-*.json
+chats/*.json
 
 #Environment variables
 .env
