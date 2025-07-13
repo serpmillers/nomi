@@ -1,17 +1,45 @@
-# Nomi
+# 🧠 Nomi – Your AI Assistant with Memory
 
-## 🛠 Setup Instructions
+Nomi is a smart, cli-based AI assistant designed for local interaction using Google's Gemini API. It remembers your chats, supports multiple sessions like ChatGPT, and is built with personality.
 
-### 1. Create Project Structure
+---
 
-```bash
-mkdir -p ~/Repos/nomi/{utils}
-cd ~/Repos/nomi
+## 🚀 Features
 
-touch nomi.py brain.py memory.py startup.py config.yaml
-touch utils/__init__.py utils/cli.py
-echo "{}" > memory.json
+- ✅ Supports Gemini models (`gemini-1.5-flash-002`, etc.)
+- 💬 Multi-session chat (like ChatGPT)
+- 📁 Stores chat logs in `/chats` folder
+- 🧠 Persona-driven responses
+- 🌐 CLI-powered interface using `rich`
 
-# Make main script executable with a shebang
-echo '#!/usr/bin/env python3' | cat - nomi.py > temp && mv temp nomi.py
-chmod +x nomi.py
+### Planned features:
+- Allowing other users to join in a chat for working together
+- Web Scraping
+- File support
+- Chat exporter
+- Better cli formatting
+- Full terminal integration
+- Voice capabilities
+
+---
+
+## 📁 Folder Structure
+
+```
+nomi/
+│
+├── chats/              # Chat history (in .json format)
+├── src/
+│   ├── brain.py        # Handles the chat loop
+│   ├── load_chat.py    # Manages loading chat history
+│   ├── startup.py      # Handles Model selection
+│   └── utils/
+│       └── cli.py      # Handles CLI inputs
+│
+├── nomi.py             # Entry point
+├── config.yaml         # Configuration file for persona & model
+├── requirements.txt    # All required Python packages
+├── .env                # Your Gemini API key (not tracked by git)
+└── README.md           
+
+```
