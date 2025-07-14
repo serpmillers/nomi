@@ -1,6 +1,6 @@
 #literally, the brain# main.py
 
-import os, json,argparse, google.generativeai as genai
+import os, json, argparse, yaml, google.generativeai as genai
 from dotenv import load_dotenv
 from src.load_chat import choose_chat
 from src.utils.cli import get_user_input
@@ -19,6 +19,18 @@ class Brain:
         self.api_key = os.getenv("GEMINI_API_KEY")
         self.persona = config.get("persona", "")
         self.model_name = config.get("default_model", "gemini-1.5-flash-002")
+        # If menu passed a chat name, skip chooser
+        if "force_chat" in self.config:
+            self.chat_name = self.config["force_chat"]
+            path = os.path.join("chats", self.chat_name + ".json")
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    self.history = json.load(f)
+            else:
+                self.history = []
+        else:
+            self.chat_name, self.history = choose_chat()
+        
 
         if not self.api_key:
             self.console.print("[bold red]Error:[/] GEMINI_API_KEY not found in .env file.")
@@ -29,7 +41,7 @@ class Brain:
             self.model_name,
             system_instruction=self.persona
         )
-        self.chat_name, self.history = choose_chat()
+        # self.chat_name, self.history = choose_chat()
         self.chat_path = os.path.join("chats", self.chat_name + ".json")
         self.chat_session = self.model.start_chat(
             history=self.history
@@ -105,3 +117,18 @@ class Brain:
 
         self.console.print("\n[dim]Press Enter to exit...[/dim]")
         input()
+
+if __name__ == "__main__":
+    load_dotenv()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("chat", nargs="?", help="Chat name to open (skip chooser)")
+    args = parser.parse_args()
+
+    with open("config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+
+    if args.chat:
+        config["force_chat"] = args.chat
+    
+    Brain(config).chat()
