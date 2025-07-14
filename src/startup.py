@@ -1,4 +1,5 @@
 #fancy intro type shi
+#out of service now, keeping it cuz it might be useful later
 
 import yaml, os
 from rich.prompt import Prompt, Confirm

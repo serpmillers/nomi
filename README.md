@@ -32,14 +32,15 @@ nomi/
 ├── src/
 │   ├── brain.py        # Handles the chat loop
 │   ├── load_chat.py    # Manages loading chat history
-│   ├── startup.py      # Handles Model selection
+│   ├── menu.py         # Menu for accessing the bot's features
+│   ├── startup.py      # Handles Model selection (not in use)
 │   └── utils/
 │       └── cli.py      # Handles CLI inputs
 │
 ├── nomi.py             # Entry point
 ├── config.yaml         # Configuration file for persona & model
 ├── requirements.txt    # All required Python packages
-├── .env                # Your Gemini API key (not tracked by git)
+├── .env                # Gemini API key (not tracked by git)
 └── README.md           
 
 ```
