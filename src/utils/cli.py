@@ -1,5 +1,7 @@
 #cli 
-from rich.prompt import Prompt
+from prompt_toolkit import PromptSession
+
+session = PromptSession()
 
 def get_user_input():
-    return Prompt.ask("[bold magenta]You: [/bold magenta]", show_default=False, show_choices=False)
+    return session.prompt()
