@@ -101,7 +101,6 @@ class Brain:
         """
 
         while True:
-            console.print("[bold magenta]You:[/bold magenta] ", end="")
             user_input= get_user_input()
             if user_input.lower() in ["exit", "quit", "bye"]:
                 self.console.print("")

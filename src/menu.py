@@ -90,7 +90,7 @@ def launch_chat_window(chat_name):
 def main_menu():
     while True: 
         os.system('clear')
-        console.print(center("[bold cyan]Welcome to Nomi![/]"))
+        console.print(("[bold cyan]\n\n  Welcome to Nomi!\n\n[/]"))
 
         choice = questionary.select(
             "What would you like to do?",

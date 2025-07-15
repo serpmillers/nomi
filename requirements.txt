@@ -2,6 +2,7 @@
 rich==13.7.1                # Formatting terminal outputs
 tqdm==4.66.4                # For progress bars (e.g., file uploads, thinking delays (maybe?))
 prompt-toolkit==3.0.38      # User input handling
+questionary==2.1.0               # For Menus
 
 # Core features
 requests==2.31.0            # Making web/API calls
