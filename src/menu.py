@@ -12,6 +12,19 @@ MODELS = {
     "gemini-2.5-flash": "Mid-2025 speedster",
     "gemini-2.5-pro": "Strongest (might be overkill)"
 }
+TERMINAL_CANDIDATES = {
+    "gnome-terminal",
+    "alacritty",
+    "kitty",
+    "wezterm",
+    "xterm",
+    "foot",
+    "tilix",
+    "konsole",
+    "lxterminal",
+    "xfce4-terminal",
+    "urxvt",
+}
 
 console = Console()
 chat_dir = "chats"
@@ -19,11 +32,24 @@ chat_dir = "chats"
 def center(text):
     return Align.center(Panel(text, expand=False))
 
-def edit_config(model=None, persona=None):
+def detect_terminal():
+    cfg = get_config()
+    if "default_terminal" in cfg:
+        return  # Already set
+
+    for term in TERMINAL_CANDIDATES:
+        if shutil.which(term):
+            edit_config(terminal=term)
+            console.print(f"[green]Detected terminal:[/] {term}")
+            return
+    console.print("[red]No known terminal found. Please install one from the list or edit config.yaml[/]")
+
+def edit_config(model=None, persona=None, terminal=None):
     with open(CONFIG_PATH, "r") as f:
         cfg = yaml.safe_load(f)
     if model: cfg["default_model"] = model
     if persona is not None: cfg["persona"] = persona
+    if terminal: cfg["default_terminal"] = terminal
     with open(CONFIG_PATH, "w") as f:
         yaml.dump(cfg, f)
 
@@ -79,13 +105,19 @@ def delete_chat():
             console.print(f"[red]Error:[/] {e}")
 
 def launch_chat_window(chat_name):
+    with open(CONFIG_PATH, "r") as f:
+        cfg = yaml.safe_load(f)
+    terminal = cfg.get("default_terminal", "kitty")
     cmd = ["python3", "-m", "src.brain", chat_name]
-    subprocess.Popen([
-        "gnome-terminal",
-        "--title",
-        f"Nomi – {chat_name}",
-        "--"
-    ] + cmd)
+    try:
+        subprocess.Popen([
+            "kitty",
+            "--title",
+            f"Nomi – {chat_name}",
+            "--"
+        ] + cmd)
+    except FileNotFoundError:
+        console.print(f"[red]Terminal '{terminal}' not found![/]")
 
 def main_menu():
     while True: 

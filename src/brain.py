@@ -78,7 +78,7 @@ class Brain:
                 content = "\n".join(message["parts"]).strip()
 
                 if role == "user":
-                    self.console.print(f"[bold magenta]You:[/] {content}")
+                    self.console.print(f"[bold #b4befe]You:[/] {content}")
                 elif role == "model":
                     self.console.print(f"[bold green]Nomi: [/]", end="")
                     self.console.print(Markdown(content))
