@@ -1,6 +1,6 @@
 #loading menu trial
 
-import os, yaml, questionary, subprocess, platform
+import os, yaml, questionary, subprocess, platform, shutil
 from rich.console import Console
 from rich.panel import Panel
 from rich.align import Align
@@ -12,7 +12,7 @@ MODELS = {
     "gemini-2.5-flash": "Mid-2025 speedster",
     "gemini-2.5-pro": "Strongest (might be overkill)"
 }
-TERMINAL_CANDIDATES = {
+TERMINAL_CANDIDATES_LINUX = {
     "gnome-terminal",
     "alacritty",
     "kitty",
@@ -25,28 +25,93 @@ TERMINAL_CANDIDATES = {
     "xfce4-terminal",
     "urxvt",
 }
+TERMINAL_CANDIDATES_MAC = {
+    "iTerm.app",
+    "Terminal.app"
+}
+TERMINAL_CANDIDATES_WIN = {
+    "wt",
+    "powershell",
+    "cmd"
+}
 
 console = Console()
 chat_dir = "chats"
+
+def get_config():
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            return yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        # Create default config if it doesn't exist
+        default_config = {"default_model": "gemini-1.5-flash", "persona": ""}
+        with open(CONFIG_PATH, "w") as f:
+            yaml.dump(default_config, f)
+        return default_config
 
 def center(text):
     return Align.center(Panel(text, expand=False))
 
 def detect_terminal():
     cfg = get_config()
-    if "default_terminal" in cfg:
-        return  # Already set
+    system = platform.system().lower()
+    
+    # Check if we have a configured terminal AND it actually exists
+    if "default_terminal" in cfg and cfg["default_terminal"]:
+        configured_terminal = cfg["default_terminal"]
+        
+        # Verify the configured terminal actually exists
+        terminal_exists = False
+        if system == "linux":
+            terminal_exists = shutil.which(configured_terminal) is not None
+        elif system == "darwin":
+            if configured_terminal.endswith(".app"):
+                terminal_exists = os.path.exists(f"/Applications/{configured_terminal}")
+            else:
+                terminal_exists = shutil.which(configured_terminal) is not None
+        elif system == "windows":
+            terminal_exists = shutil.which(configured_terminal) is not None
+        
+        if terminal_exists:
+            console.print(f"[green]Using configured terminal:[/] {configured_terminal}")
+            return configured_terminal
+        else:
+            console.print(f"[yellow]Configured terminal '{configured_terminal}' not found, auto-detecting...[/]")
+            # Continue to auto-detection below
 
-    for term in TERMINAL_CANDIDATES:
-        if shutil.which(term):
-            edit_config(terminal=term)
-            console.print(f"[green]Detected terminal:[/] {term}")
-            return
-    console.print("[red]No known terminal found. Please install one from the list or edit config.yaml[/]")
+    # Auto-detect available terminal
+    detected_terminal = None
 
+    if system == "linux":
+        for term in TERMINAL_CANDIDATES_LINUX:
+            if shutil.which(term):
+                detected_terminal = term
+                break
+    elif system == "darwin":
+        for term in TERMINAL_CANDIDATES_MAC:
+            app_path = f"/Applications/{term}"
+            if os.path.exists(app_path):
+                detected_terminal = term
+                break
+    elif system == "windows":
+        for term in TERMINAL_CANDIDATES_WIN:
+            if shutil.which(term):
+                detected_terminal = term
+                break
+
+    if detected_terminal:
+        # Update config with the newly detected terminal
+        edit_config(terminal=detected_terminal)
+        console.print(f"[green]Detected and saved terminal:[/] {detected_terminal}")
+        return detected_terminal
+    else:
+        console.print("[red]No supported terminal found. Please install one or manually set default_terminal in config.yaml[/]")
+        return None
+    
 def edit_config(model=None, persona=None, terminal=None):
-    with open(CONFIG_PATH, "r") as f:
-        cfg = yaml.safe_load(f)
+    # with open(CONFIG_PATH, "r") as f:
+    #     cfg = yaml.safe_load(f)
+    cfg = get_config()
     if model: cfg["default_model"] = model
     if persona is not None: cfg["persona"] = persona
     if terminal: cfg["default_terminal"] = terminal
@@ -105,19 +170,77 @@ def delete_chat():
             console.print(f"[red]Error:[/] {e}")
 
 def launch_chat_window(chat_name):
-    with open(CONFIG_PATH, "r") as f:
-        cfg = yaml.safe_load(f)
-    terminal = cfg.get("default_terminal", "kitty")
+    # Always use detect_terminal() - it handles both configured and auto-detected terminals
+    terminal = detect_terminal()
+
+    if not terminal:
+        console.print("[red]No terminal available. Cannot launch chat window.[/]")
+        return
+    
     cmd = ["python3", "-m", "src.brain", chat_name]
+    system = platform.system().lower()
+
     try:
-        subprocess.Popen([
-            "kitty",
-            "--title",
-            f"Nomi – {chat_name}",
-            "--"
-        ] + cmd)
+        if system == "linux":
+            if terminal in ["kitty", "alacritty"]:
+                args = [terminal, "--title", f"Nomi – {chat_name}", "--"] + cmd
+            elif terminal == "wezterm":
+                args = [terminal, "start", "--", "bash", "-c", " ".join(cmd)]
+            elif terminal == "gnome-terminal":
+                args = [terminal, "--title", f"Nomi – {chat_name}", "--"] + cmd
+            elif terminal in ["xfce4-terminal", "tilix"]:
+                args = [terminal, "--title", f"Nomi – {chat_name}", "-e", " ".join(cmd)]
+            elif terminal == "konsole":
+                args = [terminal, "--new-tab", "-p", f"tabtitle=Nomi – {chat_name}", "-e"] + cmd
+            elif terminal == "xterm":
+                args = [terminal, "-T", f"Nomi – {chat_name}", "-e"] + cmd
+            elif terminal == "foot":
+                args = [terminal, "--title", f"Nomi – {chat_name}"] + cmd
+            else:
+                args = [terminal, "-e"] + cmd
+            
+            subprocess.Popen(args)
+
+        elif system == "darwin":
+            cmd_str = " ".join([f'"{arg}"' if " " in arg else arg for arg in cmd])
+            if terminal == "iTerm.app":
+                applescript = f'''
+                tell application "iTerm"
+                    create window with default profile
+                    tell current session of current window
+                        write text "{cmd_str}"
+                        set name to "Nomi – {chat_name}"
+                    end tell
+                end tell
+                '''
+                subprocess.Popen(["osascript", "-e", applescript])
+            else:  # Terminal.app
+                applescript = f'''
+                tell application "Terminal"
+                    do script "{cmd_str}"
+                    set custom title of front window to "Nomi – {chat_name}"
+                end tell
+                '''
+                subprocess.Popen(["osascript", "-e", applescript])
+
+        elif system == "windows":
+            if terminal == "wt":
+                args = ["wt", "new-tab", "--title", f"Nomi – {chat_name}", "cmd", "/k"] + cmd
+            elif terminal == "powershell":
+                cmd_str = " ".join(cmd)
+                args = ["powershell", "-NoExit", "-Command", cmd_str]
+            else:  # cmd
+                cmd_str = " ".join(cmd)
+                args = ["cmd", "/k", cmd_str]
+            
+            subprocess.Popen(args)
+        else:
+            console.print(f"[red]Unsupported OS: {system}[/]")
+
     except FileNotFoundError:
         console.print(f"[red]Terminal '{terminal}' not found![/]")
+    except Exception as e:
+        console.print(f"[red]Error launching terminal: {e}[/]")
 
 def main_menu():
     while True: 

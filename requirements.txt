@@ -1,16 +1,41 @@
-# CLI and UX
-rich==13.7.1                # Formatting terminal outputs
-tqdm==4.66.4                # For progress bars (e.g., file uploads, thinking delays (maybe?))
-prompt-toolkit==3.0.38      # User input handling
-questionary==2.1.0               # For Menus
-
-# Core features
-requests==2.31.0            # Making web/API calls
-python-dotenv==1.0.1        # Managing API keys in .env file
-pyyaml==6.0.1               # Config file
-
-# Gemini API
+annotated-types==0.7.0
+cachetools==5.5.2
+certifi==2025.7.14
+charset-normalizer==3.4.2
+docopt==0.6.2
+google-ai-generativelanguage==0.6.4
+google-api-core==2.25.1
+google-api-python-client==2.177.0
+google-auth==2.40.3
+google-auth-httplib2==0.2.0
 google-generativeai==0.5.4
-
-# For OpenAI (commented for now)
-# openai==1.30.1          
+googleapis-common-protos==1.70.0
+grpcio==1.73.1
+grpcio-status==1.62.3
+httplib2==0.22.0
+idna==3.10
+markdown-it-py==3.0.0
+mdurl==0.1.2
+pipreqs==0.4.13
+prompt-toolkit==3.0.38
+proto-plus==1.26.1
+protobuf==4.25.8
+pyasn1==0.6.1
+pyasn1_modules==0.4.2
+pydantic==2.11.7
+pydantic_core==2.33.2
+Pygments==2.19.2
+pyparsing==3.2.3
+python-dotenv==1.0.1
+PyYAML==6.0.1
+questionary==2.1.0
+requests==2.31.0
+rich==13.7.1
+rsa==4.9.1
+tqdm==4.66.4
+typing-inspection==0.4.1
+typing_extensions==4.14.1
+uritemplate==4.2.0
+urllib3==2.5.0
+wcwidth==0.2.13
+yarg==0.1.10
