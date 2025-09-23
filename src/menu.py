@@ -242,9 +242,19 @@ def launch_chat_window(chat_name):
     except Exception as e:
         console.print(f"[red]Error launching terminal: {e}[/]")
 
-def main_menu():
-    while True: 
+def clear_console():
+    system = platform.system().lower()
+    if system == linux
         os.system('clear')
+    elif system == darwin
+        os.system('clear')
+    elif system == windows
+        os.system('cls')
+
+def main_menu():
+    while True:
+        system = platform.system().lower()
+        clear_console()
         console.print(("[bold cyan]\n\n  Welcome to Nomi!\n\n[/]"))
 
         choice = questionary.select(
@@ -280,5 +290,5 @@ def main_menu():
             if new_persona is not None:
                 edit_config(persona=new_persona)
         elif choice == "Exit":
-            os.system('clear')
+            clear_console()
             break      
