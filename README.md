@@ -7,19 +7,21 @@ Nomi is a smart, cli-based AI assistant designed for local interaction using Goo
 ## 🚀 Features
 
 - ✅ Supports Gemini models (`gemini-1.5-flash-002`, etc.)
+- 🔗 Cross chat recalling so that different chats are linked at all times
 - 💬 Multi-session chat (like ChatGPT)
-- 📁 Stores chat logs in `/chats` folder
+- 📁 Stores chat logs in a sqlite database
 - 🧠 Persona-driven responses
 - 🌐 CLI-powered interface using `rich`
 
 ## Planned features:
-- Allowing other users to join in a chat for working together
-- Web Scraping
-- File support
-- Chat exporter
-- Better cli formatting
-- Full terminal integration
-- Voice capabilities
+- 🧬 Vector database for Retrieval-Augmented Generation
+- 👥 Allowing other users to join in a chat
+- 🌐 Web Scraping
+- 📄 File support
+- 📤 Chat exporter
+- 🎨 Better CLI formatting
+- 🖥 Full terminal integration
+- 🗣 Voice capabilities
 
 ---
 
@@ -28,17 +30,18 @@ Nomi is a smart, cli-based AI assistant designed for local interaction using Goo
 ```
 nomi/
 │
-├── chats/              # Chat history (in .json format)
 ├── src/
 │   ├── brain.py        # Handles the chat loop
-│   ├── load_chat.py    # Manages loading chat history
+│   ├── load_chat.py    # Manages loading chats from the database
+│   ├── tofetchmodal.py # Dynamically selects the model based on availability
 │   ├── menu.py         # Menu for accessing the bot's features
 │   ├── startup.py      # Handles Model selection (not in use right now)
 │   └── utils/
 │       └── cli.py      # Handles CLI inputs
 │
 ├── nomi.py             # Entry point
-├── config.yaml         # Configuration file for persona & model
+├── config.yaml         # Configuration file for persona & model (not tracked by git)
+├── nomi_memory.db      # Where all the chats are stored (not tracked by git)
 ├── requirements.txt    # All required Python packages
 ├── .env                # Gemini API key (not tracked by git)
 └── README.md           
@@ -81,6 +84,6 @@ python3 nomi.py
 ```
 
 ## 7. **Tweak it according to your preference**
-In the menu, you get the option to choose between different **models** of Gemini : from the fast and efficient ones to the heavyweights with top-tier reasoning. You can also edit the **persona**, customizing how Nomi behaves and responds. Whether you want a chill assistant, a sarcastic genius, or a medieval bard, it's all up to you.
+In the menu, you get the option to edit the **persona**, customizing how Nomi behaves and responds. Whether you want a chill assistant, a sarcastic genius, or a medieval bard, it's all up to you.
 ---
 **Nomi speaks your language — literally. Make it yours.**
