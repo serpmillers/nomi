@@ -31,7 +31,8 @@ TERMINAL_CANDIDATES_WIN = {
 }
 
 console = Console()
-chat_dir = "chats"
+# chat_dir = "chats"
+DB_NAME = "nomi_memory.db"
 
 def get_config():
     try:
@@ -193,17 +194,31 @@ def get_chat_id_by_name(chat_name, cursor):
 
 
 def delete_chat():
-    chats = [
-        f[:-5] # to remove extension from the name
-        for f in os.listdir(chat_dir)
-        if f.endswith(".json")
-    ]
+    # chats = [
+    #     f[:-5] # to remove extension from the name
+    #     for f in os.listdir(chat_dir)
+    #     if f.endswith(".json")
+    # ]
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    # Fetch all chats
+    cursor.execute("SELECT name FROM chats ORDER BY created_at")
+    chats = [row[0] for row in cursor.fetchall()]
+
+    if not chats:
+        console.print("[yellow]No chats available to delete.[/]")
+        conn.close()
+        return None
+
     choices = chats + ["Back"]
     selected = questionary.select(
         "Chat to delete: ",
         choices=choices,
         qmark=" ❯ "
     ).ask()
+
     if selected == "Back":
         return None
     
@@ -215,10 +230,21 @@ def delete_chat():
     ).ask()
 
     if confirm and confirm.strip().lower() == "yes":
-        try:
-            return chat_name
-        except Exception as e:
-            console.print(f"[red]Error:[/] {e}")
+         # Get chat ID
+        cursor.execute("SELECT id FROM chats WHERE name=?", (chat_name,))
+        row = cursor.fetchone()
+        if row:
+            chat_id = row[0]
+            # Delete messages first (FK constraint)
+            cursor.execute("DELETE FROM messages WHERE chat_id=?", (chat_id,))
+            # Delete chat
+            cursor.execute("DELETE FROM chats WHERE id=?", (chat_id,))
+            conn.commit()
+            console.print(f"[bold red]Deleted chat:[/] {chat_name}")
+        else:
+            console.print(f"[red]Chat '{chat_name}' not found in DB![/]")
+    else:
+        console.print("[yellow]Deletion cancelled.[/]")
 
 def launch_chat_window(chat_name):
     terminal = detect_terminal()  # detect_terminal()

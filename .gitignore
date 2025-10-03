@@ -1,3 +1,7 @@
+#config file amd database
+config.yaml
+nomi_memory.db
+
 #Python bytecode
 __pycache__/
 *.py[cod]
@@ -28,6 +32,3 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
-
-#config file
-config.yaml
