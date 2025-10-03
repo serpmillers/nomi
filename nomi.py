@@ -107,8 +107,7 @@ if __name__ == "__main__":
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
+        ) """)
 
         # Create messages table
         cursor.execute("""
@@ -119,8 +118,7 @@ if __name__ == "__main__":
             content TEXT NOT NULL,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (chat_id) REFERENCES chats (id)
-        )
-        """)
+        ) """)
         conn.commit()
         conn.close()
 
