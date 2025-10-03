@@ -5,6 +5,7 @@ os.environ["GRPC_VERBOSITY"] = "NONE"
 os.environ["GRPC_TRACE"] = ""
 os.environ["ABSL_MIN_LOG_LEVEL"] = "3"
 from dotenv import load_dotenv
+from src.tofetchmodal import get_working_model
 from src.load_chat import choose_chat
 from src.utils.cli import get_user_input
 from rich.console import Console
@@ -21,7 +22,7 @@ class Brain:
         self.config = config
         self.api_key = os.getenv("GEMINI_API_KEY")
         self.persona = config.get("persona", "")
-        self.model_name = config.get("default_model", "gemini-1.5-flash-002")
+        self.model_name = get_working_model(self.persona)
         # If menu passed a chat name, skip chooser
         if "force_chat" in self.config:
             self.chat_name = self.config["force_chat"]
@@ -90,6 +91,7 @@ class Brain:
         # Greeting the user
         try:
             console.print("[bold cyan]\n\n\nL O A D I N G . . . \n\n\n[/bold cyan]")
+            console.print(f"[bold #b4befe]model in use: {self.model_name} \n\n[/bold #b4befe]")
             greeter = genai.GenerativeModel(self.model_name, system_instruction=self.persona)
             greeting = greeter.generate_content("Greet the user warmly as Nomi.")
             welcome_text = Markdown(greeting.text.strip())

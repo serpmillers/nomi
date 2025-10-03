@@ -145,7 +145,7 @@ def detect_terminal():
 
     if detected_terminal:
         # Update config with the newly detected terminal
-        edit_config(terminal=detected_terminal)
+        # edit_config(terminal=detected_terminal)
         # console.print(f"[green]Detected and saved terminal:[/] {detected_terminal}")
         return detected_terminal
     else:
@@ -162,14 +162,14 @@ def edit_config(model=None, persona=None, terminal=None):
     with open(CONFIG_PATH, "w") as f:
         yaml.dump(cfg, f)
 
-def choose_model():
-    model = questionary.select(
-        "Pick a Gemini model:",
-        choices = [f"{m} - {desc}" for m, desc in MODELS.items()
-        ],
-        qmark=" ❯ "
-    ).ask()
-    return model.split(" ")[0]
+# def choose_model():
+#     model = questionary.select(
+#         "Pick a Gemini model:",
+#         choices = [f"{m} - {desc}" for m, desc in MODELS.items()
+#         ],
+#         qmark=" ❯ "
+#     ).ask()
+#     return model.split(" ")[0]
 
 def edit_persona():
     with open(CONFIG_PATH, "r") as f:
@@ -289,7 +289,6 @@ def main_menu():
             choices=[
                 "Open/Create Chat",
                 "Delete Chat",
-                "Change Default Model",
                 "Edit Persona",
                 "Exit"
             ],
@@ -310,8 +309,8 @@ def main_menu():
             console.print(f"[bold red]Deleted:[/] {dl_chat}")
             console.print(f"\n[italic gray]Press enter to continue...[/]\n")
             input()
-        elif choice == "Change Default Model":
-            edit_config(model=choose_model())
+        # elif choice == "Change Default Model":
+        #     edit_config(model=choose_model())
         elif choice == "Edit Persona":
             new_persona = edit_persona()
             if new_persona is not None:
