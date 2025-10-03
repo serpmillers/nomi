@@ -152,9 +152,9 @@ def edit_config(model=None, persona=None, terminal=None):
     # with open(CONFIG_PATH, "r") as f:
     #     cfg = yaml.safe_load(f)
     cfg = get_config()
-    if model: cfg["default_model"] = model
+    # if model: cfg["default_model"] = model
     if persona is not None: cfg["persona"] = persona
-    if terminal: cfg["default_terminal"] = terminal
+    # if terminal: cfg["default_terminal"] = terminal
     with open(CONFIG_PATH, "w") as f:
         yaml.dump(cfg, f)
 
