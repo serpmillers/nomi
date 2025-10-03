@@ -307,7 +307,7 @@ def launch_chat_window(chat_name):
                 subprocess.Popen(["osascript", "-e", applescript])
 
         elif system == "windows":
-            cmd = [python_exec, "-m", "src.brain", chat_name, str(chat_id)]
+            cmd = [python_exec, "-m", "src.brain", chat_name]
             
             subprocess.run(cmd)
             subprocess.run([python_exec, "-m", "src.menu"])
