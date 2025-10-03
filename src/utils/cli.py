@@ -12,16 +12,16 @@ def prompt_continuation(width, line_number, wrap_count):
 
 kb = KeyBindings()
 
-@kb.add("enter")
+@kb.add("c-m")
 def _(event):
-    """Submit on Enter"""
+    """Submit"""
     buffer = event.current_buffer
     if buffer.validate():
         buffer.validate_and_handle()
 
-@kb.add("c-m")
+@kb.add("c-\\")
 def _(event):
-    """Insert newline with Ctrl + Enter"""
+    """Insert newline"""
     event.current_buffer.insert_text("\n")
 
 # Custom style

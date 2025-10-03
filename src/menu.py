@@ -1,6 +1,6 @@
 #loading menu trial
 
-import os, yaml, questionary, subprocess, platform, shutil
+import os, yaml, questionary, subprocess, platform, shutil, sys, psutil
 from rich.console import Console
 from rich.panel import Panel
 from rich.align import Align
@@ -52,6 +52,50 @@ def get_config():
 def center(text):
     return Align.center(Panel(text, expand=False))
 
+def get_python_executable():
+    system = platform.system().lower()
+    if system == "windows":
+        return sys.executable or "python"
+    else:
+        return "python3"
+
+def clear_console():
+    system = platform.system().lower()
+    if system == "linux" or system == "darwin":
+        os.system('clear')
+    elif system == "windows":
+        os.system('cls')
+
+def detect_current_terminal():
+    """
+    Detects the terminal that is running this process.
+    Returns the terminal executable name (like 'kitty', 'gnome-terminal', 'cmd.exe', 'powershell.exe'),
+    or None if not found.
+    """
+    try:
+        parent = psutil.Process(os.getppid())  # parent process of the Python script
+        term = parent.name().lower()
+
+        # Normalize known cases
+        if "gnome-terminal" in term:
+            return "gnome-terminal"
+        elif "kitty" in term:
+            return "kitty"
+        elif "alacritty" in term:
+            return "alacritty"
+        elif "wezterm" in term:
+            return "wezterm"
+        elif "powershell" in term:
+            return "powershell"
+        elif "cmd.exe" in term:
+            return "cmd.exe"
+        elif "windowsterminal" in term:
+            return "wt"  # Windows Terminal CLI
+
+        return term  # fallback: return the raw parent process name
+    except Exception:
+        return None
+
 def detect_terminal():
     cfg = get_config()
     system = platform.system().lower()
@@ -72,12 +116,12 @@ def detect_terminal():
         elif system == "windows":
             terminal_exists = shutil.which(configured_terminal) is not None
         
-        if terminal_exists:
-            console.print(f"[green]Using configured terminal:[/] {configured_terminal}")
-            return configured_terminal
-        else:
-            console.print(f"[yellow]Configured terminal '{configured_terminal}' not found, auto-detecting...[/]")
-            # Continue to auto-detection below
+        # if terminal_exists:
+        #     console.print(f"[green]Using configured terminal:[/] {configured_terminal}")
+        #     return configured_terminal
+        # else:
+        #     console.print(f"[yellow]Configured terminal '{configured_terminal}' not found, auto-detecting...[/]")
+        #     # Continue to auto-detection below
 
     # Auto-detect available terminal
     detected_terminal = None
@@ -102,10 +146,10 @@ def detect_terminal():
     if detected_terminal:
         # Update config with the newly detected terminal
         edit_config(terminal=detected_terminal)
-        console.print(f"[green]Detected and saved terminal:[/] {detected_terminal}")
+        # console.print(f"[green]Detected and saved terminal:[/] {detected_terminal}")
         return detected_terminal
     else:
-        console.print("[red]No supported terminal found. Please install one or manually set default_terminal in config.yaml[/]")
+        # console.print("[red]No supported terminal found. Please install one or manually set default_terminal in config.yaml[/]")
         return None
     
 def edit_config(model=None, persona=None, terminal=None):
@@ -170,14 +214,13 @@ def delete_chat():
             console.print(f"[red]Error:[/] {e}")
 
 def launch_chat_window(chat_name):
-    # Always use detect_terminal() - it handles both configured and auto-detected terminals
-    terminal = detect_terminal()
+    terminal = detect_terminal()  # detect_terminal()
 
     if not terminal:
         console.print("[red]No terminal available. Cannot launch chat window.[/]")
         return
-    
-    cmd = ["python3", "-m", "src.brain", chat_name]
+    python_exec = get_python_executable()
+    cmd = [python_exec, "-m", "src.brain", chat_name]
     system = platform.system().lower()
 
     try:
@@ -224,32 +267,16 @@ def launch_chat_window(chat_name):
                 subprocess.Popen(["osascript", "-e", applescript])
 
         elif system == "windows":
-            if terminal == "wt":
-                args = ["wt", "new-tab", "--title", f"Nomi – {chat_name}", "cmd", "/k"] + cmd
-            elif terminal == "powershell":
-                cmd_str = " ".join(cmd)
-                args = ["powershell", "-NoExit", "-Command", cmd_str]
-            else:  # cmd
-                cmd_str = " ".join(cmd)
-                args = ["cmd", "/k", cmd_str]
+            cmd = [python_exec, "-m", "src.brain", chat_name]
             
-            subprocess.Popen(args)
-        else:
-            console.print(f"[red]Unsupported OS: {system}[/]")
+            subprocess.run(cmd)
+            subprocess.run([python_exec, "-m", "src.menu"])
+            # sys.exit(0) 
 
     except FileNotFoundError:
         console.print(f"[red]Terminal '{terminal}' not found![/]")
     except Exception as e:
         console.print(f"[red]Error launching terminal: {e}[/]")
-
-def clear_console():
-    system = platform.system().lower()
-    if system == linux
-        os.system('clear')
-    elif system == darwin
-        os.system('clear')
-    elif system == windows
-        os.system('cls')
 
 def main_menu():
     while True:

@@ -1,6 +1,9 @@
 #literally, the brain# main.py
 
 import os, json, argparse, yaml, google.generativeai as genai
+os.environ["GRPC_VERBOSITY"] = "NONE"
+os.environ["GRPC_TRACE"] = ""
+os.environ["ABSL_MIN_LOG_LEVEL"] = "3"
 from dotenv import load_dotenv
 from src.load_chat import choose_chat
 from src.utils.cli import get_user_input
