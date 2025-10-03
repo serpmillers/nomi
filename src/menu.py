@@ -1,17 +1,12 @@
 #loading menu trial
 
-import os, yaml, questionary, subprocess, platform, shutil, sys, psutil
+import sqlite3, os, yaml, questionary, subprocess, platform, shutil, sys, psutil
 from rich.console import Console
 from rich.panel import Panel
 from rich.align import Align
 
 CONFIG_PATH = "config.yaml"
-MODELS = {
-    "gemini-1.5-flash": "Fast & efficient",
-    "gemini-1.5-pro": "Better reasoning",
-    "gemini-2.5-flash": "Mid-2025 speedster",
-    "gemini-2.5-pro": "Strongest (might be overkill)"
-}
+
 TERMINAL_CANDIDATES_LINUX = {
     "gnome-terminal",
     "alacritty",
@@ -185,6 +180,18 @@ def choose_chat():
     chat_name, _ = load()
     return chat_name
 
+def get_chat_id_by_name(chat_name, cursor):
+    cursor.execute("SELECT id FROM chats WHERE name=?", (chat_name,))
+    row = cursor.fetchone()
+    if row:
+        return row[0]
+    else:
+        # Chat doesn't exist yet, create it
+        cursor.execute("INSERT INTO chats (name) VALUES (?)", (chat_name,))
+        cursor.connection.commit()
+        return cursor.lastrowid
+
+
 def delete_chat():
     chats = [
         f[:-5] # to remove extension from the name
@@ -219,8 +226,15 @@ def launch_chat_window(chat_name):
     if not terminal:
         console.print("[red]No terminal available. Cannot launch chat window.[/]")
         return
+    
+    conn = sqlite3.connect("nomi_memory.db")
+    cursor = conn.cursor()
+    chat_id = get_chat_id_by_name(chat_name, cursor)
+    conn.close()
+    
     python_exec = get_python_executable()
     cmd = [python_exec, "-m", "src.brain", chat_name]
+    # cmd = [python_exec, "-m", "src.brain", chat_name, str(chat_id)]
     system = platform.system().lower()
 
     try:
@@ -267,7 +281,7 @@ def launch_chat_window(chat_name):
                 subprocess.Popen(["osascript", "-e", applescript])
 
         elif system == "windows":
-            cmd = [python_exec, "-m", "src.brain", chat_name]
+            cmd = [python_exec, "-m", "src.brain", chat_name, str(chat_id)]
             
             subprocess.run(cmd)
             subprocess.run([python_exec, "-m", "src.menu"])
