@@ -170,7 +170,8 @@ class Brain:
         # Greeting the user
         try:
             console.print("[bold cyan]\n\n\nL O A D I N G . . . \n\n\n[/bold cyan]")
-            console.print(f"[bold #b4befe]model in use: {self.model_name} \n\n[/bold #b4befe]")
+            console.print(f"[bold #b4befe]model in use: {self.model_name} \n[/bold #b4befe]")
+            console.print(f"[bold #b4befe]loaded chat: {self.chat_name} \n\n[/bold #b4befe]")
             greeter = genai.GenerativeModel(self.model_name, system_instruction=self.persona)
             greeting = greeter.generate_content("Greet the user warmly as Nomi.")
             welcome_text = Markdown(greeting.text.strip())
@@ -178,7 +179,7 @@ class Brain:
             self.console.print(welcome_text)
             self.console.print("")
         except Exception as e:
-            self.console.print("[bold cyan]Nomi is ready. Ask me anything![/bold cyan]")
+            self.console.print("[bold cyan]Nomi is ready. Ask me anything! \n\n[/bold cyan]")
 
         """
         Chat loop which I'm sending to nomi.py

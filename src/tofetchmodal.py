@@ -1,4 +1,4 @@
-import google.generativeai as genai
+import google.generativeai as genai, sqlite3
 from dotenv import load_dotenv
 import os
 
@@ -20,10 +20,10 @@ generate_models_list = [
     # "gemini-pro-latest",
     # "gemini-flash-latest",
     # "gemini-flash-lite-latest",
-    # "gemini-2.5-pro",
-    # "gemini-2.5-pro-preview-06-05",
-    # "gemini-2.5-pro-preview-05-06",
-    # "gemini-2.5-pro-preview-03-25",
+    "gemini-2.5-pro",
+    "gemini-2.5-pro-preview-06-05",
+    "gemini-2.5-pro-preview-05-06",
+    "gemini-2.5-pro-preview-03-25",
     "gemini-2.5-flash",
     "gemini-2.5-flash-preview-09-2025",
     "gemini-2.5-flash-preview-05-20",
@@ -56,13 +56,31 @@ def get_working_model(persona):
     """
     Returns the first working model from the hardcoded list.
     """
+    conn = sqlite3.connect("nomi_memory.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT chat_id, role, content, timestamp FROM messages ORDER BY timestamp ASC",
+        # (chat_id,)
+    )
+    rows = cursor.fetchall()
+    # full_history = [
+    #     {"role": role, "parts": [content]}
+    #     for chat_id, role, content, timestamp in rows
+    # ]
+    full_history = [
+        {"role": role, "parts": [{"text": content}]} 
+        for _, role, content, _ in rows
+    ]
     for model_name in generate_models_list:
         try:
             test_model = genai.GenerativeModel(model_name, system_instruction=persona)
-            test_model.start_chat(history=[])  # test availability
-            return model_name  # first working model
+            chat = test_model.start_chat(history=full_history)  # test availability
+            response = chat.send_message("Hello")
+            if response and hasattr(response, "candidates") and response.candidates:
+                return model_name  # first working model
         except Exception:
             continue
 
+    conn.close()
     # fallback if none work
     return "gemini-2.5-flash"
